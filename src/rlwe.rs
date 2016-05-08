@@ -4,12 +4,11 @@ use ::ct::{ select, cmplt, eq, ge, le };
 
 include!("rlwe_args.rs");
 
-
 fn get_bit(a: &[u64], x: usize) -> u64 {
     (a[x / 64] >> (x as u64 % 64)) & 1
 }
 
-pub fn single_sample(input: &[u64]) -> u32 {
+fn single_sample(input: &[u64]) -> u32 {
     (0..52).fold(0, |sum, next| select(
         sum,
         next as u64 + 1,
@@ -17,7 +16,7 @@ pub fn single_sample(input: &[u64]) -> u32 {
     )) as u32
 }
 
-pub fn dbl(input: u32, mut e: i32) -> u64 {
+fn dbl(input: u32, mut e: i32) -> u64 {
     e = ((e >> 1) & 1).wrapping_sub(e & 1);
     ((input as u64) << 1).wrapping_sub(e as u64)
 }
@@ -53,7 +52,7 @@ pub fn crossround2(input: &[u32]) -> [u64; 16] {
             e >>= 2;
             let b = (ge(dd, 2147483648) & le(dd, 4294967295))
                 | (ge(dd, 6442450942) & le(dd, 8589934590));
-            output[(i * 16 + j) / 64] |= b << ((i * 16 +j) % 64);
+            output[(i * 16 + j) / 64] |= b << ((i * 16 + j) % 64);
         }
     }
 

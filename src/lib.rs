@@ -44,10 +44,12 @@ impl Default for RlweKex {
 }
 
 impl RlweKex {
+    /// Generate New RlweKex.
     pub fn new() -> RlweKex {
         RlweKex::default()
     }
 
+    /// Import RlweKex, from bytes.
     pub fn import(sk: &[u8], pk: &[u8]) -> RlweKex {
         RlweKex {
             sk: bytes_to_u32(sk),
@@ -55,14 +57,17 @@ impl RlweKex {
         }
     }
 
+    /// Export Private Key.
     pub fn private_export(&self) -> Vec<u8> {
         u32_to_bytes(&self.sk)
     }
 
+    /// Export Public Key.
     pub fn public_export(&self) -> Vec<u8> {
         u32_to_bytes(&self.pk)
     }
 
+    /// Key Exchange. returns (reconciliation data, secret).
     pub fn exchange(&self, target: &[u8]) -> (Vec<u8>, Vec<u8>) {
         let (data, secret) = kex_compute_key_bob(
             &FFT::new(),
@@ -72,6 +77,7 @@ impl RlweKex {
         (u64_to_bytes(&data), u64_to_bytes(&secret))
     }
 
+    /// Key Exchange. from (public key, reconciliation data), return secret.
     pub fn exchange_from(&self, target: &[u8], data: &[u8]) -> Vec<u8> {
         u64_to_bytes(&kex_compute_key_alice(
             &FFT::new(),
