@@ -1,7 +1,6 @@
 extern crate rlwekex;
 
-use rlwekex::fft::FFT;
-use rlwekex::rlwe::RLWE_A;
+use rlwekex::{ FFT, RLWE_A };
 
 
 const RLWE_A_SQ: [u32; 1024] = [
@@ -181,7 +180,7 @@ const RLWE_A_SQ: [u32; 1024] = [
 #[test]
 fn test_fft() {
     let mut out = [0; 1024];
-    let mut fft = FFT::new();
+    let fft = FFT::new();
 
     fft.mul(&RLWE_A, &RLWE_A, &mut out);
 

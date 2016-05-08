@@ -1,7 +1,7 @@
 extern crate rlwekex;
 
-use rlwekex::fft::FFT;
-use rlwekex::rlwe::RLWE_A;
+use rlwekex::FFT;
+use rlwekex::RLWE_A;
 use rlwekex::rlwe_key::{
     key_generate_keypair,
     kex_compute_key_alice,
@@ -11,17 +11,16 @@ use rlwekex::rlwe_key::{
 
 #[test]
 fn test_rlwe_key() {
-    let mut fft = FFT::new();
-    let alice = key_generate_keypair(&mut fft, &RLWE_A);
-    let bob = key_generate_keypair(&mut fft, &RLWE_A);
+    let alice = key_generate_keypair(&FFT::new(), &RLWE_A);
+    let bob = key_generate_keypair(&FFT::new(), &RLWE_A);
 
     let (c, bob_secret) = kex_compute_key_bob(
-        &mut fft,
+        &FFT::new(),
         &alice.1,
         &bob.0
     );
     let alice_secret = kex_compute_key_alice(
-        &mut fft,
+        &FFT::new(),
         &bob.1,
         &alice.0,
         &c

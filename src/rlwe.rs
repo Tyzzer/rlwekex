@@ -1,4 +1,4 @@
-use rand::random;
+use ::util::random;
 use ::ct::{ select, cmplt, eq, ge, le };
 
 

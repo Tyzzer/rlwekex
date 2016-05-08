@@ -1,14 +1,10 @@
-use ::fft::FFT;
+//! Raw Function
+
+use ::FFT;
 use ::rlwe::{ sample, rec, crossround2, round2 };
 
 
-/// input:
-///     fft
-///     rlwe param
-/// output:
-///     private key
-///     publice key
-pub fn key_generate_keypair(fft: &mut FFT, a: &[u32]) -> ([u32; 1024], [u32; 1024]) {
+pub fn key_generate_keypair(fft: &FFT, a: &[u32]) -> ([u32; 1024], [u32; 1024]) {
     let (mut s, mut b) = ([0; 1024], [0; 1024]);
     let mut e = [0; 1024];
 
@@ -23,27 +19,13 @@ pub fn key_generate_keypair(fft: &mut FFT, a: &[u32]) -> ([u32; 1024], [u32; 102
     (s, b)
 }
 
-/// input:
-///     fft
-///     bob publice key
-///     alice private key
-///     reconciliation data
-/// output:
-///     share secret
-pub fn kex_compute_key_alice(fft: &mut FFT, b: &[u32], s: &[u32], c: &[u64]) -> [u64; 16] {
+pub fn kex_compute_key_alice(fft: &FFT, b: &[u32], s: &[u32], c: &[u64]) -> [u64; 16] {
     let mut w = [0; 1024];
     fft.mul(&b, &s, &mut w);
     rec(&w, &c)
 }
 
-/// input:
-///     fft
-///     alice publice key
-///     bob private key
-/// output:
-///     reconciliation data
-///     share secret
-pub fn kex_compute_key_bob(fft: &mut FFT, b: &[u32], s: &[u32]) -> ([u64; 16], [u64; 16]) {
+pub fn kex_compute_key_bob(fft: &FFT, b: &[u32], s: &[u32]) -> ([u64; 16], [u64; 16]) {
     let mut v = [0; 1024];
     let mut eprimeprime = [0; 1024];
 
