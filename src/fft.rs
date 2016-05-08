@@ -8,8 +8,8 @@ pub struct FFT {
     t: [u32; 64]
 }
 
-impl FFT {
-    pub fn new() -> FFT {
+impl Default for FFT {
+    fn default() -> FFT {
         FFT {
             x: [[0; 64]; 64],
             y: [[0; 64]; 64],
@@ -17,6 +17,10 @@ impl FFT {
             t: [0; 64]
         }
     }
+}
+
+impl FFT {
+    pub fn new() -> FFT { FFT::default() }
 
     pub fn mul(&mut self, x: &[u32], y: &[u32], z: &mut [u32]) {
         self.nussbaumer_fft(x, y, z)
@@ -29,18 +33,13 @@ impl FFT {
     }
 
     fn nussbaumer_fft(&mut self, x: &[u32], y: &[u32], z: &mut [u32]) {
-        let mut x1 = self.x;
-        let mut y1 = self.y;
-        let mut z1 = self.z;
-        let mut t1 = self.t;
-
         for i in 0..32 {
             for j in 0..32 {
-                x1[i][j] = x[32 * j + i];
-                x1[i + 32][j] = x[32 * j + i];
+                self.x[i][j] = x[32 * j + i];
+                self.x[i + 32][j] = x[32 * j + i];
 
-                y1[i][j] = y[32 * j + i];
-                y1[i + 32][j] = y[32 * j + i];
+                self.y[i][j] = y[32 * j + i];
+                self.y[i + 32][j] = y[32 * j + i];
             }
         }
 
@@ -55,32 +54,32 @@ impl FFT {
                     let ll = (s + t + (1 << j)) as usize;
 
                     for a in sr..32 {
-                        t1[a] = x1[ll][a - sr];
+                        self.t[a] = self.x[ll][a - sr];
                     }
                     for a in 0..sr {
-                        t1[a] = neg(x1[ll][32 + a - sr]);
+                        self.t[a] = neg(self.x[ll][32 + a - sr]);
                     }
                     for a in 0..32 {
-                        x1[ll][a] = mod_sub(x1[ii][a], t1[a]);
-                        x1[ii][a] = mod_add(x1[ii][a], t1[a]);
+                        self.x[ll][a] = mod_sub(self.x[ii][a], self.t[a]);
+                        self.x[ii][a] = mod_add(self.x[ii][a], self.t[a]);
                     }
 
                     for a in sr..32 {
-                        t1[a] = y1[ll][a - sr];
+                        self.t[a] = self.y[ll][a - sr];
                     }
                     for a in 0..sr {
-                        t1[a] = neg(y1[ll][32 + a - sr]);
+                        self.t[a] = neg(self.y[ll][32 + a - sr]);
                     }
                     for a in 0..32 {
-                        y1[ll][a] = mod_sub(y1[ii][a], t1[a]);
-                        y1[ii][a] = mod_add(y1[ii][a], t1[a]);
+                        self.y[ll][a] = mod_sub(self.y[ii][a], self.t[a]);
+                        self.y[ii][a] = mod_add(self.y[ii][a], self.t[a]);
                     }
                 }
             }
         }
 
         for i in 0..(2 * 32) {
-            naive(&x1[i], &y1[i], &mut z1[i], 32);
+            naive(&self.x[i], &self.y[i], &mut self.z[i], 32);
         }
 
         for j in 0..6 {
@@ -94,26 +93,26 @@ impl FFT {
                     let bb = (s + t + (1 << j)) as usize;
 
                     for a in 0..32 {
-                        t1[a] = mod_sub(z1[aa][a], z1[bb][a]);
-                        t1[a] = mod_div2(t1[a]);
-                        z1[aa][a] = mod_add(z1[aa][a], z1[bb][a]);
-                        z1[aa][a] = mod_div2(z1[aa][a]);
+                        self.t[a] = mod_sub(self.z[aa][a], self.z[bb][a]);
+                        self.t[a] = mod_div2(self.t[a]);
+                        self.z[aa][a] = mod_add(self.z[aa][a], self.z[bb][a]);
+                        self.z[aa][a] = mod_div2(self.z[aa][a]);
                     }
 
                     for a in 0..(32 - sr) {
-                        z1[bb][a] = t1[a + sr];
+                        self.z[bb][a] = self.t[a + sr];
                     }
                     for a in (32 - sr)..32 {
-                        z1[bb][a] = neg(t1[a - (32 - sr)]);
+                        self.z[bb][a] = neg(self.t[a - (32 - sr)]);
                     }
                 }
             }
         }
 
         for i in 0..32 {
-            z[i] = mod_sub(z1[i][0], z1[32 + i][32 - 1]);
+            z[i] = mod_sub(self.z[i][0], self.z[32 + i][32 - 1]);
             for j in 1..32 {
-                z[32 * j + i] = mod_add(z1[i][j], z1[32 + i][j - 1]);
+                z[32 * j + i] = mod_add(self.z[i][j], self.z[32 + i][j - 1]);
             }
         }
     }
@@ -149,17 +148,33 @@ fn mod_add(a: u32, b: u32) -> u32 {
     let t = a.wrapping_add(b);
     t.wrapping_add(if t < a { 1 } else { 0 })
 }
-fn mod_sub(a: u32, b: u32) -> u32 { a.wrapping_sub(b).wrapping_sub(if b > a { 1 } else { 0 }) }
+
+fn mod_sub(a: u32, b: u32) -> u32 {
+    a.wrapping_sub(b).wrapping_sub(if b > a { 1 } else { 0 })
+}
+
 fn mod_mul(a: u32, b: u32) -> u32 {
     let t = a as u64 * b as u64;
     mod_add(t as u32, (t >> 32) as u32)
 }
+
 fn mod_mul_add(a: u32, b: u32, c: u32) -> u32 {
     let t = a as u64 * b as u64 + c as u64;
     mod_add(t as u32, (t >> 32) as u32)
 }
-fn div2(a: u32) -> u32 { ((a as u64 + (0u32.wrapping_sub(a & 1) & 0xffffffff) as u64) >> 1) as u32
+
+fn div2(a: u32) -> u32 {
+    ((a as u64 + (0u32.wrapping_sub(a & 1) & 0xffffffff) as u64) >> 1) as u32
 }
-fn normalize(a: u32) -> u32 { a.wrapping_add(if a == 0xffffffff { 1 } else { 0 })  }
-fn mod_div2(a: u32) -> u32 { div2(normalize(a)) }
-fn neg(a: u32) -> u32 { normalize(0xffffffff - a) }
+
+fn normalize(a: u32) -> u32 {
+    a.wrapping_add(if a == 0xffffffff { 1 } else { 0 })
+}
+
+fn mod_div2(a: u32) -> u32 {
+    div2(normalize(a))
+}
+
+fn neg(a: u32) -> u32 {
+    normalize(0xffffffff - a)
+}
