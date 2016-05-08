@@ -18,8 +18,8 @@ pub fn single_sample(input: &[u64]) -> u32 {
 }
 
 pub fn dbl(input: u32, mut e: i32) -> u64 {
-    e = ((e >> 1) & 1) - (e & 1);
-    ((input as u64) << 1) - e as u64
+    e = ((e >> 1) & 1).wrapping_sub(e & 1);
+    ((input as u64) << 1).wrapping_sub(e as u64)
 }
 
 pub fn sample(s: &mut [u32]) {
@@ -38,7 +38,7 @@ pub fn round2(input: &[u32]) -> [u64; 16] {
     let mut output = [0; 16];
     for i in 0..1024 {
         let b = ge(input[i] as u64, 1073741824) & le(input[i] as u64, 3221225471);
-        output[i / 64] |= b << (i / 64) as u64;
+        output[i / 64] |= b << (i as u64 % 64);
     }
     output
 }
@@ -67,7 +67,7 @@ pub fn rec(w: &[u32], b: &[u64]) -> [u64; 16] {
         let coswi = (w[i] as u64) << 1;
         let bb = (eq(get_bit(b, i), 0) & ge(coswi, 3221225472) & le(coswi, 7516192766))
             | (eq(get_bit(b, i), 1) & ge(coswi, 1073741824) & le(coswi, 5368709118));
-        output[i / 64] = bb << (i % 64);
+        output[i / 64] |= bb << (i as u64 % 64);
     }
 
     output
