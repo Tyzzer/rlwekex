@@ -33,7 +33,7 @@ use rlwe_key::{
 /// ```
 pub struct RlweKex {
     sk: [u32; 1024],
-    pub pk: [u32; 1024]
+    pk: [u32; 1024]
 }
 
 impl Default for RlweKex {
