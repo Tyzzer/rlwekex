@@ -3,6 +3,7 @@ use byteorder::{ BigEndian, WriteBytesExt, ReadBytesExt };
 
 type Endian = BigEndian;
 
+
 pub fn random<T: Rand>() -> T {
     match OsRng::new() {
         Ok(mut rng) => rng.gen(),

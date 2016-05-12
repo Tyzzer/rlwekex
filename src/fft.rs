@@ -1,6 +1,3 @@
-use stepbymap::StepByMap;
-
-
 pub struct FFT {
     x: [[u32; 64]; 64],
     y: [[u32; 64]; 64],
@@ -49,9 +46,9 @@ impl FFT {
         }
 
         for j in (0..5).rev() {
-            for i in (0..).step_map(|n| n + 1).stop_map(|&n| n >= (1 << (5 - j))) {
+            for i in 0..(1 << (5 - j)) {
                 let ssr = reverse(i);
-                for t in (0..).step_map(|n| n + 1).stop_map(|&n| n >= (1 << j)) {
+                for t in 0..(1 << j) {
                     let s = i << (j + 1);
                     let sr = ((ssr >> (32 - 5 + j)) << j) as usize;
 
@@ -88,9 +85,9 @@ impl FFT {
         }
 
         for j in 0..6 {
-            for i in (0..).step_map(|n| n + 1).stop_map(|&n| n >= (1 << (5 - j))) {
+            for i in 0..(1 << (5 - j)) {
                 let ssr = reverse(i);
-                for t in (0..).step_map(|n| n + 1).stop_map(|&n| n >= (1 << j)) {
+                for t in 0..(1 << j) {
                     let s = i << (j + 1);
                     let sr = (ssr.wrapping_shr(32 - 5 + j) << j) as usize;
 

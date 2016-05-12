@@ -1,6 +1,5 @@
 extern crate rand;
 extern crate byteorder;
-extern crate stepbymap;
 
 mod util;
 mod fft;
