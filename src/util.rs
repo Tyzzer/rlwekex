@@ -1,5 +1,5 @@
 use rand::{ Rand, OsRng, thread_rng, Rng };
-use byteorder::{ BigEndian, WriteBytesExt, ReadBytesExt };
+use byteorder::{ BigEndian, ByteOrder, WriteBytesExt };
 
 type Endian = BigEndian;
 
@@ -19,16 +19,11 @@ pub fn u32_to_bytes(input: &[u32]) -> Vec<u8> {
     output
 }
 
-pub fn bytes_to_u32(mut input: &[u8]) -> [u32; 1024] {
+pub fn bytes_to_u32(input: &[u8]) -> [u32; 1024] {
     let mut output = [0; 1024];
-    let mut data = Vec::with_capacity(1024);
-    loop {
-        data.push(match input.read_u32::<Endian>() {
-            Ok(v) => v,
-            _ => break
-        });
+    for i in 0..1024 {
+        output[i] = Endian::read_u32(&input[(i * 4)..((i + 1) * 4)]);
     }
-    output.clone_from_slice(&data);
     output
 }
 
@@ -40,15 +35,10 @@ pub fn u64_to_bytes(input: &[u64]) -> Vec<u8> {
     output
 }
 
-pub fn bytes_to_u64(mut input: &[u8]) -> [u64; 16] {
+pub fn bytes_to_u64(input: &[u8]) -> [u64; 16] {
     let mut output = [0; 16];
-    let mut data = Vec::with_capacity(16);
-    loop {
-        data.push(match input.read_u64::<Endian>() {
-            Ok(v) => v,
-            _ => break
-        });
+    for i in 0..16 {
+        output[i] = Endian::read_u64(&input[(i * 8)..((i + 1) * 8)]);
     }
-    output.clone_from_slice(&data);
     output
 }

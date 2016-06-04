@@ -1,6 +1,5 @@
 //! Constant Time
 
-use std::u64::MIN;
 
 /// ```
 /// use std::u64::{ MIN, MAX };
@@ -83,7 +82,7 @@ pub fn ge(x: u64, y: u64) -> u64 {
 /// assert_eq!(mask(0), 0);
 /// ```
 pub fn mask(bit: u64) -> u64 {
-    MIN.wrapping_sub(isnonzero(bit))
+    ::std::u64::MIN.wrapping_sub(isnonzero(bit))
 }
 
 /// ```
