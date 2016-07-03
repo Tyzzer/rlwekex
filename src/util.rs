@@ -1,15 +1,7 @@
-use rand::{ Rand, OsRng, thread_rng, Rng };
 use byteorder::{ BigEndian, ByteOrder, WriteBytesExt };
 
 type Endian = BigEndian;
 
-
-pub fn random<T: Rand>() -> T {
-    match OsRng::new() {
-        Ok(mut rng) => rng.gen(),
-        _ => thread_rng().gen()
-    }
-}
 
 pub fn u32_to_bytes(input: &[u32]) -> Vec<u8> {
     let mut output = Vec::new();
